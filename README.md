@@ -34,7 +34,7 @@ Imagine a seguinte situação:
 
 Configure um ambiente de desenvolvimento utilizando **Docker** e **Docker Compose**, incluindo:
 
-- Aplicação Node.js com **NestJS**
+- Aplicação C#/.NET Core
 - **Banco de dados relacional** (PostgreSQL, MySQL, etc.)
 - **Sistema de mensageria** (Kafka, RabbitMQ, etc.)
 - **Banco de dados distribuído** para cache (Redis, Memcached, etc.)
