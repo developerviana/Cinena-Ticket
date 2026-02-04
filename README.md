@@ -1,4 +1,4 @@
-# Teste para Desenvolvedor(a) Back-End Node.js/NestJS - Sistemas Distribuídos
+# Sistemas Distribuídos
 
 ## Introdução
 
