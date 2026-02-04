@@ -18,4 +18,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CinemaTicket.Application\CinemaTicket.Application.csproj" />
+    <ProjectReference Include="..\..\src\CinemaTicket.Domain\CinemaTicket.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
