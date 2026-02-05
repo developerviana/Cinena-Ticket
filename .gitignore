@@ -116,5 +116,17 @@ yarn-error.log*
 node_modules/
 dist/
 
-# Passos/Notas pessoais
+# Documentação/Notas pessoais (não subir)
 passos.md
+docs/
+*.md.backup
+NOTES.md
+TODO.md
+TESTS.md
+SWAGGER.md
+POSTMAN.md
+
+# Arquivos de teste/rascunho
+scratch/
+temp/
+playground/
