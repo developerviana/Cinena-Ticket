@@ -1,39 +1,42 @@
 <div align="center">
   
-# ?? Cinema Ticket System
+# 🎬 Cinema Ticket System
 
 ### Sistema Distribuído de Venda de Ingressos
 
 [![.NET 8.0](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-12.0-239120?logo=c-sharp)](https://docs.microsoft.com/en-us/dotnet/csharp/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-7.0+-DC382D?logo=redis)](https://redis.io/)
+[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-3.12+-FF6600?logo=rabbitmq)](https://www.rabbitmq.com/)
 [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 *Sistema de alta concorrência para reserva e venda de ingressos de cinema com arquitetura distribuída*
 
-[Visão Geral](#-visão-geral) •
+[Visão Geral](#-sobre-o-projeto) •
 [Tecnologias](#-tecnologias) •
 [Arquitetura](#-arquitetura) •
 [Como Executar](#-como-executar) •
 [API Endpoints](#-api-endpoints) •
-[Roadmap](#-roadmap)
+[Roadmap](#-melhorias-futuras)
 
 </div>
 
 ---
 
-## ?? Sobre o Projeto
+## 📖 Sobre o Projeto
 
 Este projeto foi desenvolvido como solução para um desafio técnico de sistemas distribuídos, focado em resolver problemas reais de **alta concorrência** em ambientes de produção.
 
-### ?? Desafio
+### 🎯 Desafio
 
 Desenvolver um sistema robusto de venda de ingressos para redes de cinema, capaz de lidar com **milhares de requisições simultâneas** garantindo consistência e integridade dos dados.
 
-#### ?? Cenário Crítico
+#### 🔥 Cenário Crítico
 
 ```
-?? Situação:
+💺 Situação:
    +- 1 Sala de Cinema com 2 assentos disponíveis
    +- 10 Usuários tentando comprar simultaneamente
    +- Múltiplas instâncias da aplicação (distribuída)
@@ -41,7 +44,7 @@ Desenvolver um sistema robusto de venda de ingressos para redes de cinema, capaz
    +- Zero margem para double-booking
 ```
 
-#### ? Problemas a Resolver
+#### ⚡ Problemas a Resolver
 
 | Desafio | Descrição |
 |---------|-----------|
@@ -53,7 +56,7 @@ Desenvolver um sistema robusto de venda de ingressos para redes de cinema, capaz
 
 ---
 
-## ?? Tecnologias
+## 🛠️ Tecnologias
 
 ### Core Stack
 
@@ -76,88 +79,101 @@ Desenvolver um sistema robusto de venda de ingressos para redes de cinema, capaz
 ### Justificativa das Escolhas
 
 <details>
-<summary><b>?? Por que PostgreSQL?</b></summary>
+<summary><b>🐘 Por que PostgreSQL?</b></summary>
 
 - Suporte nativo a transações ACID
 - Isolamento de transações configurável
 - Row-level locking para controle fino de concorrência
 - Extensões como `pg_locks` para diagnóstico
+- Melhor performance em operações concorrentes comparado a outros RDBMs
 </details>
 
 <details>
-<summary><b>?? Por que Redis?</b></summary>
+<summary><b>⚡ Por que Redis?</b></summary>
 
 - Latência ultra-baixa (< 1ms)
 - Distributed Locks com Redlock
 - TTL automático para expiração de reservas
 - Pub/Sub para eventos em tempo real
+- Estruturas de dados avançadas (Sets, Sorted Sets, Hashes)
 </details>
 
 <details>
-<summary><b>?? Por que RabbitMQ?</b></summary>
+<summary><b>🐰 Por que RabbitMQ?</b></summary>
 
 - Garantias de entrega (at-least-once)
 - Dead Letter Queues nativas
 - Padrões Exchange/Queue flexíveis
 - Retry com backoff exponencial
+- Integração nativa com MassTransit
+</details>
+
+<details>
+<summary><b>🐳 Por que Docker?</b></summary>
+
+- Isolamento de dependências (PostgreSQL, Redis, RabbitMQ)
+- Reprodutibilidade de ambientes (dev = prod)
+- Orquestração simplificada com Docker Compose
+- Facilita testes de integração
+- Deploy consistente em diferentes ambientes
 </details>
 
 ---
 
-## ?? Arquitetura
+## 🏗️ Arquitetura
 
 ### Clean Architecture
 
 ```
 +-----------------------------------------------------+
-¦                    API Layer                        ¦
-¦  +--------------+  +--------------+                ¦
-¦  ¦ Controllers  ¦  ¦  Middlewares ¦                ¦
-¦  +--------------+  +--------------+                ¦
+|                    API Layer                        |
+|  +--------------+  +--------------+                |
+|  | Controllers  |  |  Middlewares |                |
+|  +--------------+  +--------------+                |
 +-----------------------------------------------------+
-                         ¦
+                         |
 +-----------------------------------------------------+
-¦               Application Layer                     ¦
-¦  +--------------+  +--------------+                ¦
-¦  ¦  Use Cases   ¦  ¦  DTOs/Models ¦                ¦
-¦  +--------------+  +--------------+                ¦
+|               Application Layer                     |
+|  +--------------+  +--------------+                |
+|  |  Use Cases   |  |  DTOs/Models |                |
+|  +--------------+  +--------------+                |
 +-----------------------------------------------------+
-                         ¦
+                         |
 +-----------------------------------------------------+
-¦                 Domain Layer                        ¦
-¦  +--------------+  +--------------+                ¦
-¦  ¦   Entities   ¦  ¦  Interfaces  ¦                ¦
-¦  +--------------+  +--------------+                ¦
+|                 Domain Layer                        |
+|  +--------------+  +--------------+                |
+|  |   Entities   |  |  Interfaces  |                |
+|  +--------------+  +--------------+                |
 +-----------------------------------------------------+
-                         ¦
+                         |
 +-----------------------------------------------------+
-¦            Infrastructure Layer                     ¦
-¦  +--------+  +--------+  +--------+                ¦
-¦  ¦Database¦  ¦ Redis  ¦  ¦RabbitMQ¦                ¦
-¦  +--------+  +--------+  +--------+                ¦
+|            Infrastructure Layer                     |
+|  +--------+  +--------+  +--------+                |
+|  |Database|  | Redis  |  |RabbitMQ|                |
+|  +--------+  +--------+  +--------+                |
 +-----------------------------------------------------+
 ```
 
 ### Princípios Aplicados
 
-- ? **SOLID** - Separação de responsabilidades
-- ? **DDD** - Domain-Driven Design
-- ? **Repository Pattern** - Abstração de persistência
-- ? **CQRS** - Separação de comandos e consultas
-- ? **Event-Driven** - Comunicação assíncrona via eventos
+- ✅ **SOLID** - Separação de responsabilidades
+- ✅ **DDD** - Domain-Driven Design
+- ✅ **Repository Pattern** - Abstração de persistência
+- ✅ **CQRS** - Separação de comandos e consultas
+- ✅ **Event-Driven** - Comunicação assíncrona via eventos
 
 ---
 
-## ?? Como Executar
+## 🚀 Como Executar
 
 ### Pré-requisitos
 
 ```bash
 # Ferramentas necessárias
-? Docker Desktop 24.0+
-? Docker Compose 2.0+
-? .NET SDK 8.0+ (opcional, para desenvolvimento)
-? Git 2.0+
+✓ Docker Desktop 24.0+
+✓ Docker Compose 2.0+
+✓ .NET SDK 8.0+ (opcional, para desenvolvimento)
+✓ Git 2.0+
 ```
 
 ### Instalação & Execução
@@ -200,10 +216,10 @@ docker-compose exec postgres psql -U postgres -d cinema -f /scripts/seed.sql
 
 ---
 
-## ?? API Endpoints
+## 📡 API Endpoints
 
 
-### ?? Gestão de Sessões
+### 🎥 Gestão de Sessões
 
 <details>
 <summary><b>POST</b> <code>/api/sessions</code> - Criar Sessão</summary>
@@ -246,7 +262,7 @@ docker-compose exec postgres psql -U postgres -d cinema -f /scripts/seed.sql
 ```
 </details>
 
-### ?? Reserva de Assentos
+### 🎫 Reserva de Assentos
 
 <details>
 <summary><b>POST</b> <code>/api/reservations</code> - Criar Reserva (30s TTL)</summary>
@@ -277,7 +293,7 @@ docker-compose exec postgres psql -U postgres -d cinema -f /scripts/seed.sql
 ```
 </details>
 
-### ?? Confirmação de Pagamento
+### 💳 Confirmação de Pagamento
 
 <details>
 <summary><b>POST</b> <code>/api/reservations/{id}/confirm</code> - Confirmar Pagamento</summary>
@@ -305,7 +321,7 @@ docker-compose exec postgres psql -U postgres -d cinema -f /scripts/seed.sql
 ```
 </details>
 
-### ?? Consultas
+### 📊 Consultas
 
 <details>
 <summary><b>GET</b> <code>/api/users/{userId}/purchases</code> - Histórico de Compras</summary>
@@ -330,9 +346,9 @@ docker-compose exec postgres psql -U postgres -d cinema -f /scripts/seed.sql
 
 ---
 
-## ?? Estratégias de Concorrência Implementadas
+## 🔐 Estratégias de Concorrência Implementadas
 
-### 1?? Controle de Race Conditions
+### 1️⃣ Controle de Race Conditions
 
 **Problema:** 2 usuários clicam no último assento no mesmo milissegundo.
 
@@ -355,11 +371,11 @@ seat.Status = SeatStatus.Reserved;
 await _dbContext.SaveChangesAsync();
 ```
 
-**Resultado:** ? Apenas 1 requisição consegue o lock, outras aguardam ou falham gracefully.
+**Resultado:** ✅ Apenas 1 requisição consegue o lock, outras aguardam ou falham gracefully.
 
 ---
 
-### 2?? Prevenção de Deadlocks
+### 2️⃣ Prevenção de Deadlocks
 
 **Problema:** User A reserva [1,3], User B reserva [3,1] - ambos aguardam liberação.
 
@@ -375,11 +391,11 @@ foreach (var seatId in sortedSeatIds)
 }
 ```
 
-**Resultado:** ? Ordem determinística evita ciclos de espera.
+**Resultado:** ✅ Ordem determinística evita ciclos de espera.
 
 ---
 
-### 3?? Idempotência
+### 3️⃣ Idempotência
 
 **Problema:** Cliente reenvia requisição por timeout.
 
@@ -403,11 +419,11 @@ public async Task<IActionResult> CreateReservation(
 }
 ```
 
-**Resultado:** ? Requisições duplicadas retornam o mesmo resultado sem processar novamente.
+**Resultado:** ✅ Requisições duplicadas retornam o mesmo resultado sem processar novamente.
 
 ---
 
-### 4?? Expiração Automática de Reservas
+### 4️⃣ Expiração Automática de Reservas
 
 **Solução 1: Redis TTL**
 ```csharp
@@ -443,7 +459,7 @@ public class ReservationExpirationWorker : BackgroundService
 
 ---
 
-### 5?? Coordenação entre Múltiplas Instâncias
+### 5️⃣ Coordenação entre Múltiplas Instâncias
 
 **Desafio:** 3 instâncias da API rodando simultaneamente.
 
@@ -469,7 +485,7 @@ services:
 
 ---
 
-## ?? Sistema de Mensageria (Event-Driven)
+## 📨 Sistema de Mensageria (Event-Driven)
 
 ### Eventos Publicados
 
@@ -536,7 +552,7 @@ services.AddMassTransit(x =>
 
 ---
 
-## ?? Logging Estruturado
+## 📝 Logging Estruturado
 
 ```csharp
 // Serilog configurado com contexto enriquecido
@@ -561,7 +577,7 @@ Log.Information("Reserva criada {ReservationId} para usuário {UserId} - Assento
 
 ---
 
-## ?? Testes
+## 🧪 Testes
 
 ### Executar Testes
 
@@ -614,7 +630,7 @@ public async Task Should_Handle_Race_Condition_For_Last_Seat()
 
 ---
 
-## ?? Decisões Técnicas
+## 🎯 Decisões Técnicas
 
 ### Transações Database vs Cache
 
@@ -623,7 +639,7 @@ public async Task Should_Handle_Race_Condition_For_Last_Seat()
 **Motivo:**
 - Redis: Latência < 1ms para locks rápidos
 - PostgreSQL: ACID para garantias de consistência
-- **Padrão:** Lock no Redis ? Operação no DB ? Libera Lock
+- **Padrão:** Lock no Redis → Operação no DB → Libera Lock
 
 ### Pessimistic vs Optimistic Locking
 
@@ -666,7 +682,7 @@ Para este cenário (eventos transacionais, baixo volume), RabbitMQ é suficiente
 
 ---
 
-## ?? Melhorias Futuras
+## 🔮 Melhorias Futuras
 
 ### Curto Prazo (1-2 sprints)
 
@@ -691,7 +707,7 @@ Para este cenário (eventos transacionais, baixo volume), RabbitMQ é suficiente
 
 ---
 
-## ?? Referências & Estudos
+## 📚 Referências & Estudos
 
 - [Designing Data-Intensive Applications - Martin Kleppmann](https://dataintensive.net/)
 - [Building Microservices - Sam Newman](https://samnewman.io/books/building_microservices/)
@@ -700,25 +716,25 @@ Para este cenário (eventos transacionais, baixo volume), RabbitMQ é suficiente
 
 ---
 
-## ?? Licença
+## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
-## ????? Autor
+## 👤 Autor
 
 **Desenvolvido por:** [developerviana](https://github.com/developerviana)
 
-?? **Contato:** flood.com@hotmail.com
+📧 **Contato:** flood.com@hotmail.com
 
-?? **LinkedIn:** [linkedin.com/in/developerviana](https://linkedin.com/in/developerviana)
+💼 **LinkedIn:** [linkedin.com/in/developerviana](https://linkedin.com/in/developerviana)
 
 ---
 
 <div align="center">
 
-### ? Se este projeto foi útil, considere dar uma estrela!
+### ⭐ Se este projeto foi útil, considere dar uma estrela!
 
 **Qualidade > Quantidade** • **Clean Code** • **SOLID** • **DDD**
 
