@@ -650,7 +650,7 @@ Para este cenário (eventos transacionais, baixo volume), RabbitMQ é suficiente
 
 ---
 
-## ?? Limitações Conhecidas
+## ⚠️ Limitações Conhecidas
 
 1. **Escalabilidade Horizontal:** Redis como single point of failure
    - **Solução Futura:** Redis Cluster ou Redis Sentinel
